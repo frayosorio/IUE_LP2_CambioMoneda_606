@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,6 +35,29 @@ public class CambioMonedaServicio {
                 .map(CambioMoneda::getMoneda)
                 .distinct()
                 .sorted()
+                .collect(Collectors.toList());
+    }
+
+    public static List<CambioMoneda> filtrarCambioMonedas(String moneda,
+            LocalDate desde, LocalDate hasta,
+            List<CambioMoneda> datos) {
+        return datos.stream()
+                .filter(cambio -> cambio.getMoneda().equals(moneda)
+                        && !(cambio.getFecha().isBefore(desde) || cambio.getFecha().isAfter(hasta)))
+                .collect(Collectors.toList());
+    }
+
+    public static List<LocalDate> getFechas(List<CambioMoneda> datos) {
+        return datos.stream()
+                .sorted(Comparator.comparing(CambioMoneda::getFecha))
+                .map(CambioMoneda::getFecha)
+                .collect(Collectors.toList());
+    }
+
+    public static List<Double> getCambios(List<CambioMoneda> datos) {
+        return datos.stream()
+                .sorted(Comparator.comparing(CambioMoneda::getFecha))
+                .map(CambioMoneda::getCambio)
                 .collect(Collectors.toList());
     }
 
