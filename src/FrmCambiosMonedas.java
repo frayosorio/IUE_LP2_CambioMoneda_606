@@ -142,13 +142,15 @@ public class FrmCambiosMonedas extends JFrame {
             // Cambiar a la pestaña de Grafica
             tpCambiosMoneda.setSelectedIndex(0);
 
-            var datosFiltrados=CambioMonedaServicio.filtrarCambioMonedas(moneda, desde, hasta, datos);
-            var fechas=CambioMonedaServicio.getFechas(datosFiltrados);
-            var cambios=CambioMonedaServicio.getCambios(datosFiltrados);
+            var datosFiltrados = CambioMonedaServicio.filtrarCambioMonedas(moneda, desde, hasta, datos);
+            var fechas = CambioMonedaServicio.getFechas(datosFiltrados);
+            var cambios = CambioMonedaServicio.getCambios(datosFiltrados);
 
-            for(int i=0;i<fechas.size();i++){
-                System.out.println(fechas.get(i)+" "+cambios.get(i));
-            }
+            var datosGrafica = CambioMonedaServicio.getDatosGrafica(fechas, cambios,
+                    "Cambio de " + moneda + " por USD");
+            var grafica = CambioMonedaServicio.getGrafica(datosGrafica,
+                    "Cambios de la moneda " + moneda + " entre " + desde + " y " + hasta);
+            CambioMonedaServicio.mostrarGrafica(pnlGrafica, grafica);
         }
     }
 

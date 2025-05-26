@@ -1,5 +1,7 @@
 package servicios;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -8,7 +10,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import javax.swing.JPanel;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.time.Day;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
 
 import entidades.CambioMoneda;
 
@@ -59,6 +71,36 @@ public class CambioMonedaServicio {
                 .sorted(Comparator.comparing(CambioMoneda::getFecha))
                 .map(CambioMoneda::getCambio)
                 .collect(Collectors.toList());
+    }
+
+    public static TimeSeriesCollection getDatosGrafica(List<LocalDate> fechas,
+            List<Double> cambios, String titulo) {
+        var serie = new TimeSeries(titulo);
+        IntStream.range(0, fechas.size())
+                .forEach((i) -> {
+                    var fecha = fechas.get(i);
+                    serie.add(new Day(fecha.getDayOfMonth(), fecha.getMonthValue(), fecha.getYear()),
+                            cambios.get(i));
+                });
+        var datosGrafica = new TimeSeriesCollection();
+        datosGrafica.addSeries(serie);
+        return datosGrafica;
+    }
+
+    public static JFreeChart getGrafica(TimeSeriesCollection datosGrafica,
+            String titulo) {
+        return ChartFactory.createTimeSeriesChart(titulo, "Fechas",
+                "Cambio por USD", datosGrafica);
+    }
+
+    public static void mostrarGrafica(JPanel pnl, JFreeChart grafica) {
+        pnl.removeAll();
+        var pnlGrafica = new ChartPanel(grafica);
+        pnlGrafica.setPreferredSize(new Dimension(pnl.getWidth(), pnl.getHeight()));
+        pnlGrafica.setMouseWheelEnabled(true);
+        pnl.setLayout(new BorderLayout());
+        pnl.add(pnlGrafica, BorderLayout.CENTER);
+        pnl.validate();
     }
 
 }
