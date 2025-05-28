@@ -164,6 +164,20 @@ public class FrmCambiosMonedas extends JFrame {
             // Cambiar a la pestaña de estadísticas
             tpCambiosMoneda.setSelectedIndex(1);
 
+            var estadistiscas = CambioMonedaServicio.getEstadististicas(moneda, desde, hasta, datos);
+            pnlEstadisticas.removeAll();
+            pnlEstadisticas.setLayout(new GridBagLayout());
+            int fila = 0;
+            for (var estadistisca : estadistiscas.entrySet()) {
+                var gbc = new GridBagConstraints();
+                gbc.gridx = 0;
+                gbc.gridy = fila;
+                pnlEstadisticas.add(new JLabel(estadistisca.getKey()), gbc);
+                gbc.gridx = 1;
+                pnlEstadisticas.add(new JLabel(String.format("%.2f",estadistisca.getValue())), gbc);
+                fila++;
+            }
+            pnlEstadisticas.revalidate();
         }
     }
 

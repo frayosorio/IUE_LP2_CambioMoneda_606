@@ -8,7 +8,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -103,4 +106,67 @@ public class CambioMonedaServicio {
         pnl.validate();
     }
 
+    public static double getPromedio(List<Double> datos) {
+        return datos.stream()
+                .mapToDouble(Double::doubleValue)
+                .average()
+                .orElse(0);
+    }
+
+    public static double getDesviacionEstandar(List<Double> datos) {
+        var promedio = getPromedio(datos);
+        return Math.sqrt(datos.stream()
+                .mapToDouble(dato -> Math.pow(dato - promedio, 2))
+                .average()
+                .orElse(0));
+    }
+
+    public static double getMaximo(List<Double> datos) {
+        return datos.stream()
+                .mapToDouble(Double::doubleValue)
+                .max()
+                .orElse(0);
+    }
+
+    public static double getMinimo(List<Double> datos) {
+        return datos.stream()
+                .mapToDouble(Double::doubleValue)
+                .min()
+                .orElse(0);
+    }
+
+    public static double getMediana(List<Double> datos) {
+        var datosOrdenados = datos.stream()
+                .sorted()
+                .collect(Collectors.toList());
+        var n = datosOrdenados.size();
+        return n % 2 == 0 ? (datosOrdenados.get(n / 2 - 1) + datosOrdenados.get(n / 2)) / 2 : datosOrdenados.get(n / 2);
+    }
+
+    public static double getModa(List<Double> datos) {
+        return datos.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
+    }
+
+    public static Map<String, Double> getEstadististicas(String moneda,
+            LocalDate desde, LocalDate hasta,
+            List<CambioMoneda> datos) {
+        var datosFiltrados = CambioMonedaServicio.filtrarCambioMonedas(moneda, desde, hasta, datos);
+        var cambios = CambioMonedaServicio.getCambios(datosFiltrados);
+
+        Map<String, Double> estadistiscas = new HashMap<>();
+        estadistiscas.put("Promedio", getPromedio(cambios));
+        estadistiscas.put("Desviación", getDesviacionEstandar(cambios));
+        estadistiscas.put("Máximo", getMaximo(cambios));
+        estadistiscas.put("Mínimo", getMinimo(cambios));
+        estadistiscas.put("Moda", getModa(cambios));
+        estadistiscas.put("Mediana", getMediana(cambios));
+
+        return estadistiscas;
+    }
 }
